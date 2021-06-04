@@ -10,8 +10,6 @@ create real-mode-entry
 
 \ create debug-startup
 \ create serial-console
-create pc
-
 create resident-packages
 create addresses-assigned  \ Don't reassign PCI addresses
 \ create virtual-mode
@@ -19,8 +17,7 @@ create addresses-assigned  \ Don't reassign PCI addresses
 create use-timestamp-counter
 create use-pci-isa
 create use-isa-ide
-\ create use-ega
-create use-vesa
+create use-ega
 create use-elf
 \ create use-ne2000
 create use-watch-all
