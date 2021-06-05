@@ -76,6 +76,11 @@ char *host_os = "Linux";
 #define SYS5 1
 #endif
 
+#ifdef __FreeBSD__
+char *host_os = "FreeBSD";
+#define BSD 1
+#endif
+
 #ifdef __MACH__
 #define __unix__ 1
 #endif
