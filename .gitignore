@@ -23,4 +23,5 @@ headers
 TAGS
 cpu/arm/beagle/build/build
 cpu/arm/versatilepb/build/build
+cpu/arm/imx/build/build
 cpu/x86/pc/emu/build/build
