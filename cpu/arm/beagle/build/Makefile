@@ -22,10 +22,10 @@ ${ROMNAME}.rom: FORCE build ${CLIENTPROGS} ${HOSTDIR}/forth
 	./build $@
 
 ${HOSTDIR}/forth:
-	@make -C ${HOSTDIR} forth
+	@gmake -C ${HOSTDIR} forth
 
 ../../build/inflate.bin:
-	@make -C ../../build inflate.bin
+	@gmake -C ../../build inflate.bin
 
 build:
 	@ln -sf ${BUILDSH} build
@@ -34,8 +34,8 @@ clean:
 	rm -f *.dic *.log headers *~ *.elf *.di *.img builton.fth build *.rom *.version tags *.tag
 
 clean-all: clean
-	@make -C ../../build clean
-	@make -C ${HOSTDIR} clean
+	@gmake -C ../../build clean
+	@gmake -C ${HOSTDIR} clean
 
 .PHONY: FORCE clean all clean-all
 

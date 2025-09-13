@@ -12,10 +12,10 @@ all: basefw.dic
 .PRECIOUS: builder.dic
 
 ${HOSTDIR}/forth: FORCE
-	@make -C ${HOSTDIR} forth
+	@gmake -C ${HOSTDIR} forth
 
 ${HOSTDIR}/armforth: FORCE
-	@make -C ${HOSTDIR} armforth
+	@gmake -C ${HOSTDIR} armforth
 
 build: ${HOSTDIR}/forth ${HOSTDIR}/armforth
 	@ln -sf ${BUILDSH} build
@@ -28,11 +28,11 @@ builder.dic: FORCE build
 	./build builder.dic
 
 inflate.bin:
-	make -C ../${OS} ../build/inflate.bin
+	gmake -C ../${OS} ../build/inflate.bin
 
 # Don't use *.dic so as not to remove builder.dic
 clean:
 	rm -f tools.dic kernel.dic basefw.dic
 	rm -f *.tag *.log headers *~ inflate.bin build
-	@make -C ../${OS} clean
-	@make -C ${HOSTDIR} clean
+	@gmake -C ../${OS} clean
+	@gmake -C ${HOSTDIR} clean
