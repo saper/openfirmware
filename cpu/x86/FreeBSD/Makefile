@@ -1,0 +1,99 @@
+# Wrapper makefile for x86 Unix: FreeBSD, Linux, etc.
+
+BP=../../..
+
+# Flags for the OS and CPU
+MFLAGS = -m32 -DFreeBSD -DBSD -D__BSD_VISIBLE
+
+OPT = -O
+CFLAGS	= -g ${MFLAGS} -DTARGET_X86 -Wno-deprecated-non-prototype
+LFLAGS = ${MFLAGS}
+
+# Uncomment these lines to include X windows support to the wrapper
+# via libxcb.  The libxcb development package (headers, etc) must be
+# present on your compilation machine for this to work.
+# CFLAGS += -DUSE_XCB
+# LIBS += -lxcb
+# OBJS += xcbifce.o
+
+WRTAIL = forth/wrapper
+WRDIR = ${BP}/${WRTAIL}
+
+ifdef OMIT_ZIP
+ZIPDIR = ${WRDIR}
+ZIPOBJS = nullzip.o
+INFLATEBIN =
+else
+ZIPTAIL = ${WRTAIL}/zip
+ZIPDIR = ${BP}/${ZIPTAIL}
+
+ZIPOBJS = adler32.o compress.o crc32.o deflate.o inflate.o trees.o zutil.o
+
+endif
+
+OBJS += wrapper.o logger.o ${ZIPOBJS}
+
+all: forth x86forth ../build/inflate.bin
+
+# Use forth when you just need to run Forth but don't care what
+# native instruction set it is on.
+# Use x86forth when you need to compile new dictionaries that will
+# run on x86 systems.
+forth: ${OBJS}
+	${CC} ${MFLAGS} -o $@ ${OBJS} ${LIBS}
+	@ln -sf forth x86forth
+
+xinflate.lo: ${ZIPDIR}/inflate.c
+	${CC} -c ${MFLAGS} -Wall -fno-builtin -fno-stack-protector -ffreestanding -DNEED_BCOPY -O2 -fpic $< -o $@
+
+xinflate.o: xinflate.lo
+	${LD} -melf_i386_fbsd -T inflate.ld $< -o $@
+
+../build/inflate.bin: xinflate.o
+	objcopy -O binary $< $@
+
+%.o: ${WRDIR}/%.c
+	${CC} -c ${OPT} ${CFLAGS} $< -o $@
+
+%.o: ${ZIPDIR}/%.c
+	${CC} -c ${OPT} ${CFLAGS} -I${ZIPDIR} $< -o $@
+
+# ARM simulator wrapper build rules
+
+ARMDIR = ${BP}/cpu/arm
+ARMCFLAGS = -g ${MFLAGS} -DARMSIM -DTARGET_ARM -DARM -DSIMNEXT
+ARMSIMOBJS = wrapsim.o armsim.o logger.o ${ZIPOBJS}
+ARMTRACEOBJS = wrapsim.o armsim.trace.o logger.o ${ZIPOBJS}
+
+%.o: ${ARMDIR}/%.c
+	${CC} -c ${ARMCFLAGS} $< -o $@
+
+wrapsim.o: ${WRDIR}/wrapper.c
+	${CC} -c ${ARMCFLAGS} -c $< -o $@
+
+armsim.trace.o: ${ARMDIR}/armsim.c
+	${CC} -c ${ARMCFLAGS} -DTRACE=1 -c $< -o $@
+
+armforth: ${ARMSIMOBJS}
+	${CC} ${LFLAGS} ${ARMSIMOBJS} -o $@
+
+armforth.trace: ${ARMTRACEOBJS}
+	${CC} ${LFLAGS} ${ARMTRACEOBJS}  -o $@
+
+# MIPS simulator wrapper build rules
+
+MIPSDIR = ${BP}/cpu/mips
+MIPSCFLAGS = -g ${MFLAGS} -DMIPSSIM -DTARGET_MIPS -DMIPS -DSIMNEXT
+MIPSSIMOBJS = mipswrapsim.o mipssim.o logger.o ${ZIPOBJS}
+
+%.o: ${MIPSDIR}/%.c
+	${CC} -c ${MIPSCFLAGS} $< -o $@
+
+mipswrapsim.o: ${WRDIR}/wrapper.c
+	${CC} -c ${MIPSCFLAGS} -c $< -o $@
+
+mipsfth: ${MIPSSIMOBJS}
+	${CC} -Wall ${LFLAGS} ${MIPSSIMOBJS} -o $@
+
+clean:
+	@rm -f forth x86forth armforth mipsfth *.o *.lo *~ inflate.bin
