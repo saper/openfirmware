@@ -75,11 +75,6 @@
 #define u_char  unsigned char
 #define NULL    (void *)0
 
-static void init_var();
-static u_long NEEDBITS();
-static int huft_fixed();
-static int huft_dynamic();
-
 #define FILENAME_PRESENT    0x08 /* flag byte bit meaning filename follows */
 
 /* ROM
@@ -153,7 +148,11 @@ struct huft {
 };
 #endif
 
-static u_long compute_crc();
+static void init_var(u_char *compr, WORKSPACE);
+static u_long NEEDBITS(int n, u_long b, WORKSPACE);
+static int huft_fixed(int i, struct huft **tl, struct huft **td, int *bl, int *bd, u_long ll[286+30], WORKSPACE);
+static int huft_dynamic(int i, struct huft **tl, struct huft **td, int *bl, int *bd, u_long ll[286+30], WORKSPACE);
+static u_long compute_crc(u_char *s, unsigned n, u_long *crc_32_tab);
 
 /*
  * The inflate() entry point--leave this at the head of the file,
