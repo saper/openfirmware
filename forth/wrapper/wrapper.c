@@ -2170,7 +2170,7 @@ c_getenv(char *str)
 INTERNAL long
 today(void)
 {
-	long tadd;
+	time_t tadd;
 	time(&tadd);
 	return((long)localtime(&tadd));
 }
